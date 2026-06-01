@@ -14,8 +14,26 @@ def create_features(df):
 
     df = df.copy()
 
-    df["TransactionStartTime"] = pd.to_datetime(df["TransactionStartTime"])
+    # Defensive check
+    required_columns = [
+        "CustomerId",
+        "TransactionId",
+        "Amount",
+        "Value",
+        "TransactionStartTime"
+    ]
 
+    missing = [c for c in required_columns if c not in df.columns]
+
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+    # Convert datetime
+    df["TransactionStartTime"] = pd.to_datetime(
+        df["TransactionStartTime"]
+    )
+
+    # Customer-level aggregated features
     customer_features = df.groupby("CustomerId").agg(
         TotalTransactionAmount=("Amount", "sum"),
         AverageTransactionAmount=("Amount", "mean"),
@@ -23,14 +41,34 @@ def create_features(df):
         StdTransactionAmount=("Amount", "std")
     ).reset_index()
 
-    df = df.merge(customer_features, on="CustomerId", how="left")
+    df = df.merge(
+        customer_features,
+        on="CustomerId",
+        how="left"
+    )
 
-    df["StdTransactionAmount"] = df["StdTransactionAmount"].fillna(0)
+    # Replace NaN std values
+    df["StdTransactionAmount"] = (
+        df["StdTransactionAmount"]
+        .fillna(0)
+    )
 
-    df["TransactionHour"] = df["TransactionStartTime"].dt.hour
-    df["TransactionDay"] = df["TransactionStartTime"].dt.day
-    df["TransactionMonth"] = df["TransactionStartTime"].dt.month
-    df["TransactionYear"] = df["TransactionStartTime"].dt.year
+    # Time-based features
+    df["TransactionHour"] = (
+        df["TransactionStartTime"].dt.hour
+    )
+
+    df["TransactionDay"] = (
+        df["TransactionStartTime"].dt.day
+    )
+
+    df["TransactionMonth"] = (
+        df["TransactionStartTime"].dt.month
+    )
+
+    df["TransactionYear"] = (
+        df["TransactionStartTime"].dt.year
+    )
 
     return df
 
@@ -41,7 +79,8 @@ def create_features(df):
 def build_pipeline():
 
     num_features = [
-        "Amount", "Value",
+        "Amount",
+        "Value",
         "TotalTransactionAmount",
         "AverageTransactionAmount",
         "TransactionCount",
@@ -61,12 +100,12 @@ def build_pipeline():
         "PricingStrategy"
     ]
 
-    num_pipeline = Pipeline(steps=[
+    num_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
         ("scaler", StandardScaler())
     ])
 
-    cat_pipeline = Pipeline(steps=[
+    cat_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="most_frequent")),
         ("encoder", OneHotEncoder(handle_unknown="ignore"))
     ])
@@ -76,9 +115,11 @@ def build_pipeline():
         ("cat", cat_pipeline, cat_features)
     ])
 
-    return Pipeline(steps=[
+    pipeline = Pipeline([
         ("preprocessor", preprocessor)
     ])
+
+    return pipeline
 
 
 # -----------------------------
@@ -88,7 +129,10 @@ def get_processed_data(df):
 
     df = create_features(df)
 
-    X = df.drop(columns=["FraudResult"], errors="ignore")
+    X = df.drop(
+        columns=["FraudResult"],
+        errors="ignore"
+    )
 
     pipeline = build_pipeline()
 
