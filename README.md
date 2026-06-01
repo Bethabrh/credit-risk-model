@@ -49,5 +49,6 @@ The goal is to support financial risk assessment aligned with Basel II principle
 
 ## Installation
 
-bash
+```bash
 pip install -r requirements.txt
+```
