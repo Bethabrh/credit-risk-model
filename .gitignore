@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Data (VERY IMPORTANT - never commit raw data)
+data/
+data/raw/
+data/processed/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# MLflow artifacts (if you use later)
+mlruns/
+
+# OS files
+.DS_Store
+Thumbs.db
