@@ -1,11 +1,15 @@
 venv/
 __pycache__/
-.ipynb_checkpoints/
 .env
+ main
+data/
+.ipynb_checkpoints/
+
 task-2
 data/
 *.pyc
-=======
+
 *.pyc
 data/
  task-1
+task-1
