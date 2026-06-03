@@ -162,4 +162,20 @@ Handle class imbalance (SMOTE or weighting)
 Improve feature selection techniques
 Add model explainability (SHAP values)
 Deploy as an API for real-time scoring
+<<<<<<< HEAD
 a3722e (Task 3 completed - EDA, feature engineering, and improved project documentation)
+=======
+
+
+
+# Credit Risk Model API
+
+## Overview
+This project builds a machine learning model to predict credit risk and exposes it using FastAPI.
+
+
+## How to run locally
+bash
+python -m src.train
+uvicorn src.api.main:app --reload
+>>>>>>> 3e66cfb (Final Task 6: FastAPI + Docker + CI/CD completed)
